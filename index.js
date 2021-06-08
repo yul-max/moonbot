@@ -64,7 +64,8 @@ client.on('message', async message => {
             var min = Math.floor(secs/60), sec = secs%60;
             console.log(secs);
             if(secs <= 0){
-              msg.edit(`Time's up!`);
+              msg.delete();
+              message.channel.send(`Time's up, <@${message.author.id}>!`);
               busy[message.guild.id] = false;
               clearInterval(countdown);
             } else {
@@ -83,7 +84,7 @@ client.on('message', async message => {
 
 function tagReactors(reactorsArray, message){
   for(let i = 0; i < reactorsArray.length; i++){
-    if(!reactorsArray[i].bot){
+    if(!reactorsArray[i].bot && reactorsArray[i].id !== message.author.id){
       message.channel.send(`<@${reactorsArray[i].id}>`);
     }
   }
