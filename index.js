@@ -37,7 +37,9 @@ client.on('message', async message => {
       case 'pomodoro':
         if(isNaN(parameter) || parameter <= 0 || parameter % 1 !== 0){
           message.channel.send('Please enter a valid number. Type *moon help pomodoro* for more details.');
-        } else {
+        } /*else if (busy[message.guild.id]) {
+          message.channel.send("A pomodoro timer is currently running for this server. Please wait until it finishes, or join the tag list for that timer by reacting on the emoji!");
+        }*/ else {
           busy[message.guild.id] = true;
           console.log(busy);
           var reactors = [];
@@ -64,7 +66,7 @@ client.on('message', async message => {
             var min = Math.floor(secs/60), sec = secs%60;
             console.log(secs);
             if(secs <= 0){
-              msg.edit(`Time's up!`);
+              msg.edit(`Time's up, <@${message.author.id}>!`);
               busy[message.guild.id] = false;
               clearInterval(countdown);
             } else {
@@ -83,7 +85,7 @@ client.on('message', async message => {
 
 function tagReactors(reactorsArray, message){
   for(let i = 0; i < reactorsArray.length; i++){
-    if(!reactorsArray[i].bot){
+    if(!reactorsArray[i].bot && reactorsArray[i].id !=== message.author.id){
       message.channel.send(`<@${reactorsArray[i].id}>`);
     }
   }
