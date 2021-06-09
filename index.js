@@ -23,6 +23,10 @@ const commands = [
   'pomodoro'
 ];
 
+client.on('guildMemberAdd', (guildMember) =>{
+  client.channels.cache.get(851968559230877706).send(`여러분! 우리 친구 <@${guildMember.id}>씨가 왔어요!`);
+});
+
 client.on('message', async message => {
   if (message.author.bot) return;
   
@@ -38,9 +42,6 @@ client.on('message', async message => {
         if(isNaN(parameter) || parameter <= 0 || parameter % 1 !== 0){
           message.channel.send('Please enter a valid number. Type *moon help pomodoro* for more details.');
         } else {
-          busy[message.guild.id] = true;
-          console.log(busy);
-          var reactors = [];
           var minute = parameter > 1 ? 'minutes' : 'minute';
           let secs = parameter * 60;
           const react = await message.channel
@@ -56,6 +57,7 @@ client.on('message', async message => {
             }
           });
           reactions.on('end', collection => {
+              message.channel.send(`Time's up, <@${message.author.id}>!`);
             tagReactors(collection.array()[0].users.cache.array(), message);
           });
           const msg = await message.channel.send(`Time remaining: ${Math.floor(secs/60)}:${secs%60}`);
@@ -65,7 +67,6 @@ client.on('message', async message => {
             console.log(secs);
             if(secs <= 0){
               msg.delete();
-              message.channel.send(`Time's up, <@${message.author.id}>!`);
               busy[message.guild.id] = false;
               clearInterval(countdown);
             } else {
