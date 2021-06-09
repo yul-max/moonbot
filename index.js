@@ -12,7 +12,7 @@ require('dotenv').config();
 const client = new Discord.Client();
 
 var prefix = 'moon';
-var busy = {};
+var command_channel = {};
 
 client.on('ready', () => {
   console.log('MoonBot is online!');
@@ -37,6 +37,15 @@ client.on('message', async message => {
     switch(command){
       case 'help':
         message.channel.send(commands);
+        break;
+      case 'channel':
+        if(command_channel[message.guild.id] !== undefined){
+          message.channel.send(`There is already a MoonBot command channel for this server. It's ${message.guild.channels.cache.get(command_channel[message.guild.id])}.`);
+        }
+        else{
+          var chan = await message.guild.channels.create('ㅣ🌙-moonbot-🌙');
+          command_channel[message.guild.id] = chan.id;
+        }
         break;
       case 'pomodoro':
         if(isNaN(parameter) || parameter <= 0 || parameter % 1 !== 0){
