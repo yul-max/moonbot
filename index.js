@@ -24,7 +24,7 @@ const commands = [
 ];
 
 client.on('guildMemberAdd', (guildMember) =>{
-  client.channels.cache.get(851968559230877706).send(`여러분! 우리 친구 <@${guildMember.id}>씨가 왔어요!`);
+  client.channels.cache.get('851968559230877706').send(`여러분! 우리 친구 <@${guildMember.id}>씨가 왔어요!`);
 });
 
 client.on('message', async message => {
