@@ -29,31 +29,33 @@ client.on('guildMemberAdd', (guildMember) =>{
 
 client.on('message', async message => {
   if (message.author.bot) return;
-  
-  if (message.content.startsWith(prefix)){
+  const server = message.guild;
+  const channel = message.channel;
+
+  if ((command_channel[server.id] === undefined || channel.id === command_channel[server.id]) && message.content.startsWith(prefix)){
     const msg = message.content.split(" ");
     const command = msg[1], parameter = msg[2];
-
+    
     switch(command){
       case 'help':
-        message.channel.send(commands);
+        channel.send(commands);
         break;
       case 'channel':
-        if(command_channel[message.guild.id] !== undefined){
-          message.channel.send(`There is already a MoonBot command channel for this server. It's ${message.guild.channels.cache.get(command_channel[message.guild.id])}.`);
+        if(command_channel[server.id] !== undefined){
+          channel.send(`There is already a MoonBot command channel for this server. It's ${server.channels.cache.get(command_channel[server.id])}.`);
         }
         else{
-          var chan = await message.guild.channels.create('ㅣ🌙-moonbot-🌙');
-          command_channel[message.guild.id] = chan.id;
+          var chan = await server.channels.create('ㅣ🌙-moonbot-🌙');
+          command_channel[server.id] = chan.id;
         }
         break;
       case 'pomodoro':
         if(isNaN(parameter) || parameter <= 0 || parameter % 1 !== 0){
-          message.channel.send('Please enter a valid number. Type *moon help pomodoro* for more details.');
+          channel.send('Please enter a valid number. Type *moon help pomodoro* for more details.');
         } else {
           var minute = parameter > 1 ? 'minutes' : 'minute';
           let secs = parameter * 60;
-          const react = await message.channel
+          const react = await channel
             .send(`Pomodoro interval of ${parameter} ${minute} started. Timer will update every 5 seconds. \nReact to the emoji to join the tag list!`)
           react.react('🤔');
           const filter = (reaction) => reaction.emoji.name === '🤔';
@@ -66,17 +68,18 @@ client.on('message', async message => {
             }
           });
           reactions.on('end', collection => {
-              message.channel.send(`Time's up, <@${message.author.id}>!`);
+              channel.send(`Time's up, <@${message.author.id}>!`);
             tagReactors(collection.array()[0].users.cache.array(), message);
           });
-          const msg = await message.channel.send(`Time remaining: ${Math.floor(secs/60)}:${secs%60}`);
+          const msg = await channel.send(`Time remaining: ${Math.floor(secs/60)}:${secs%60}`);
           var countdown = setInterval(async () => {
             secs -= 5;
             var min = Math.floor(secs/60), sec = secs%60;
             console.log(secs);
             if(secs <= 0){
               msg.delete();
-              busy[message.guild.id] = false;
+              react.delete();
+              message.delete();
               clearInterval(countdown);
             } else {
               msg.edit(`Time remaining: ${min}:${sec}.`);
@@ -85,7 +88,7 @@ client.on('message', async message => {
         }
         break;
       default:
-        message.channel.send('Please enter a valid command. Type *moon help* for a list of valid commands.');
+        channel.send('Please enter a valid command. Type *moon help* for a list of valid commands.');
         break;
     }
   }
@@ -95,7 +98,7 @@ client.on('message', async message => {
 function tagReactors(reactorsArray, message){
   for(let i = 0; i < reactorsArray.length; i++){
     if(!reactorsArray[i].bot && reactorsArray[i].id !== message.author.id){
-      message.channel.send(`<@${reactorsArray[i].id}>`);
+      channel.send(`<@${reactorsArray[i].id}>`);
     }
   }
 }
